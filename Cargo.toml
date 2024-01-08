@@ -1,0 +1,13 @@
+[package]
+name = "home_iot_backend"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+postgres = { version = "0.19.7", features = ["with-uuid-1"] }
+serde = "1.0"
+serde_json = "1.0"
+serde_derive = "1.0"
+uuid = { version = "1.6.1", features = ["v4", "serde"] }
