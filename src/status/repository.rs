@@ -7,6 +7,7 @@ use crate::common::env::DB_URL;
 #[derive(Serialize, Deserialize)]
 pub struct Status {
     pub(crate) id: Option<Uuid>,
+    pub(crate) client_id: Uuid,
     pub(crate) title: String,
     pub(crate) status: String,
     pub(crate) info: String
@@ -18,8 +19,8 @@ pub fn save_status(status: &Status) -> DBResponse<Uuid> {
             let id = Uuid::new_v4();
             client
                 .execute(
-                    "INSERT INTO status (id, title, status, info) VALUES ($1, $2, $3, $4)",
-                    &[&id, &status.title, &status.status, &status.info],
+                    "INSERT INTO status (id, client_id, title, status, info) VALUES ($1, $2, $3, $4, $5)",
+                    &[&id, &status.client_id, &status.title, &status.status, &status.info],
                 ).unwrap();
             DBResponse::Ok(id)
         }
@@ -34,9 +35,10 @@ pub fn get_status(id: &Uuid) -> DBResponse<Status> {
                 Ok(row) => {
                     let status = Status {
                         id: row.get(0),
-                        title: row.get(1),
-                        status: row.get(2),
-                        info: row.get(3),
+                        client_id: row.get(1),
+                        title: row.get(2),
+                        status: row.get(3),
+                        info: row.get(4),
                     };
                     DBResponse::Ok(status)
                 }
@@ -52,12 +54,13 @@ pub fn get_all_statuses() -> DBResponse<Vec<Status>> {
         Ok(mut client) => {
             let mut stati: Vec<Status> = Vec::new();
 
-            for row in client.query("SELECT id, title, status, info FROM status", &[]).unwrap() {
+            for row in client.query("SELECT id, client_id, title, status, info FROM status", &[]).unwrap() {
                 stati.push(Status {
                     id: row.get(0),
-                    title: row.get(1),
-                    status: row.get(2),
-                    info: row.get(3),
+                    client_id: row.get(1),
+                    title: row.get(2),
+                    status: row.get(3),
+                    info: row.get(4),
                 });
             }
 
