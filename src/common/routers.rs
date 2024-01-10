@@ -1,6 +1,6 @@
 use std::net::{ TcpStream };
 use std::io::{ Read, Write };
-use crate::status::router::route;
+use crate::{client, status};
 
 pub const OK_RESPONSE: &str = "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\n\r\n";
 pub const CREATED_RESPONSE: &str = "HTTP/1.1 201 OK\r\nContent-Type: application/json\r\n\r\n";
@@ -15,9 +15,10 @@ pub fn main_route(mut stream: TcpStream) {
     match stream.read(&mut buffer) {
         Ok(size) => {
             request.push_str(String::from_utf8_lossy(&buffer[..size]).as_ref());
-
+            let bla = request.split("/").nth(1).unwrap_or_default().split_whitespace().next().unwrap_or_default();
             let (status_line, content) = match &*request {
-                r if r.split("/").nth(1).unwrap_or_default().split_whitespace().next().unwrap_or_default().starts_with("status") => route(r),
+                r if bla.starts_with("status") => status::router::route(r),
+                r if bla.starts_with("client") => client::router::route(r),
                 _ => (NOT_FOUND.to_string(), "404 not found".to_string()),
             };
 

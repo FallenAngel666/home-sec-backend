@@ -1,15 +1,23 @@
 use uuid::Uuid;
+use crate::client;
+use crate::client::repository::Client;
 use crate::common::database::DBResponse;
+use crate::common::util::ServiceResponse;
 use crate::status::repository;
 use crate::status::repository::Status;
 
-pub enum ServiceResponse<T> {
-    Ok(T),
-    NotFound,
-    Error(String)
-}
 
 pub fn log_status(status: &Status) -> ServiceResponse<Status> {
+    let client = Client {
+        id: status.client_id,
+        name: "UNDEFINED".to_string()
+    };
+    match client::service::create_new_client_or_return_existing_one(&client) {
+        ServiceResponse::Ok(_) => {}
+        ServiceResponse::NotFound => {return ServiceResponse::Error("Could not find created client entity for new status.".to_string())}
+        ServiceResponse::Error(err) => {return ServiceResponse::Error(err)}
+    }
+
     match repository::save_status(status) {
         DBResponse::Ok(id) => {
             match repository::get_status(&id) {

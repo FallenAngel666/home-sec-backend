@@ -1,8 +1,7 @@
 use uuid::Uuid;
 use crate::common::routers::{CREATED_RESPONSE, INTERNAL_ERROR, NOT_FOUND, OK_RESPONSE};
 use crate::status::service;
-use crate::status::service::ServiceResponse;
-use crate::common::util::{get_id, get_status_request_body};
+use crate::common::util::{get_id, get_status_request_body, ServiceResponse};
 
 pub fn log_status(request: &str) -> (String, String) {
     match get_status_request_body(&request) {

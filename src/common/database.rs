@@ -23,3 +23,16 @@ pub fn create_status_database() -> Result<(), PostgresError> {
     )?;
     Ok(())
 }
+
+pub fn create_clients_database() -> Result<(), PostgresError> {
+    let mut client = Client::connect(DB_URL, NoTls)?;
+    client.batch_execute(
+        "
+        CREATE TABLE IF NOT EXISTS clients (
+            id uuid PRIMARY KEY,
+            name VARCHAR NOT NULL
+        )
+    "
+    )?;
+    Ok(())
+}
