@@ -14,7 +14,7 @@ pub fn create_status_database() -> Result<(), PostgresError> {
         "
         CREATE TABLE IF NOT EXISTS status (
             id uuid PRIMARY KEY,
-            client_id uuid NOT NULL,
+            client_id uuid NOT NULL references clients(id) on delete cascade,
             title VARCHAR NOT NULL,
             status VARCHAR NOT NULL,
             info VARCHAR
