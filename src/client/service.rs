@@ -1,7 +1,7 @@
 use uuid::Uuid;
 use crate::client::repository::Client;
 use crate::common::database::DBResponse;
-use crate::common::util::ServiceResponse;
+use crate::common::util::{ServiceResponse};
 use crate::client::repository;
 
 
@@ -42,6 +42,27 @@ pub fn get_all_clients() -> ServiceResponse<Vec<Client>> {
         DBResponse::Ok(c) => { ServiceResponse::Ok(c)}
         DBResponse::Error(err) => { ServiceResponse::Error(err)}
         _ => ServiceResponse::Error("Something unexpected happened.".to_string())
+    }
+}
+
+// no json-patch needed - too less fields
+pub fn update_client(client: &Client) -> ServiceResponse<Client> {
+    match get_client_by_id(&client.id) {
+        ServiceResponse::Ok(_) => {}
+        ServiceResponse::NotFound => {return ServiceResponse::NotFound}
+        ServiceResponse::Error(err) => {return ServiceResponse::Error(err)}
+    };
+
+    match repository::update_client(client) {
+        DBResponse::Ok(_) => {ServiceResponse::Ok(
+            match get_client_by_id(&client.id) {
+                ServiceResponse::Ok(c) => {c}
+                ServiceResponse::NotFound => { return ServiceResponse::NotFound}
+                ServiceResponse::Error(err) => { return ServiceResponse::Error(err)}
+            }
+        )}
+        DBResponse::NotFound => {ServiceResponse::NotFound}
+        DBResponse::Error(err) => {ServiceResponse::Error(err)}
     }
 }
 

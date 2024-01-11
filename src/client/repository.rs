@@ -60,6 +60,21 @@ pub fn get_all_clients() -> DBResponse<Vec<Client>> {
     }
 }
 
+pub fn update_client_field(id: &Uuid, field_name: &str, value: &str) -> DBResponse<bool> {
+    match postgres::Client::connect(DB_URL, NoTls) {
+        Ok(mut client) => {
+            let rows_affected = client.execute("UPDATE clients SET $1 = $2 WHERE id = $3", &[&field_name, &value, &id]).unwrap();
+
+            if rows_affected == 0 {
+                return DBResponse::NotFound
+            }
+
+            return DBResponse::Ok(true);
+        }
+        err => DBResponse::Error(format!("Could not update client with id: {}. Details: {}", id, err.err().unwrap().to_string())),
+    }
+}
+
 pub fn delete_client(id: &Uuid) -> DBResponse<bool> {
     match postgres::Client::connect(DB_URL, NoTls) {
         Ok(mut client) => {
@@ -69,8 +84,23 @@ pub fn delete_client(id: &Uuid) -> DBResponse<bool> {
                 return DBResponse::NotFound
             }
 
-            return DBResponse::Ok(false);
+            return DBResponse::Ok(true);
         }
         err => DBResponse::Error(format!("Could not delete clients with id: {}. Details: {}", id, err.err().unwrap().to_string())),
+    }
+}
+
+pub fn update_client(c: &Client) -> DBResponse<&Client> {
+    match postgres::Client::connect(DB_URL, NoTls) {
+        Ok(mut client) => {
+            let rows_affected = client.execute("Update clients set name = $1 WHERE id = $2", &[&c.name, &c.id]).unwrap();
+
+            if rows_affected == 0 {
+                return DBResponse::NotFound
+            }
+
+            return DBResponse::Ok(c);
+        }
+        err => DBResponse::Error(format!("Could not update client with id: {}. Details: {}", &c.id, err.err().unwrap().to_string())),
     }
 }

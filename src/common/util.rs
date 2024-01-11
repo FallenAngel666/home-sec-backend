@@ -1,4 +1,5 @@
-use crate::status::repository::{Status};
+use crate::client::repository::Client;
+use crate::status::repository::Status;
 
 pub enum ServiceResponse<T> {
     Ok(T),
@@ -11,5 +12,9 @@ pub fn get_id(request: &str) -> &str {
 }
 
 pub fn get_status_request_body(request: &str) -> Result<Status, serde_json::Error> {
+    serde_json::from_str(request.split("\r\n\r\n").last().unwrap_or_default())
+}
+
+pub fn get_client_request_body(request: &str) -> Result<Client, serde_json::Error> {
     serde_json::from_str(request.split("\r\n\r\n").last().unwrap_or_default())
 }
